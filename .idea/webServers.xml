@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="2e6f0249-1c2d-415a-8a94-de3f5a9ff7dd" name="cava-pygame">
+        <fileTransfer accessType="SFTP" sshConfigId="ab4c36ff-4bef-4672-818a-1d369b6c47a4" sshConfig="pi@10.107.127.5:22 agent">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

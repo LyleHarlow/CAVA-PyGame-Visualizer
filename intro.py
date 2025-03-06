@@ -16,7 +16,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("CAVA Visualization Overlay")
 
 # Load multiple background images from a folder
-background_folder = "backgrounds"  # Folder where images are stored
+background_folder = "/home/pi/Projects/cava-pygame/backgrounds"  # Folder where images are stored
 background_images = sorted(glob.glob(os.path.join(background_folder, "*.png")))  # Load all PNG images
 if not background_images:
     raise FileNotFoundError("No background images found in 'backgrounds/' folder!")
@@ -43,7 +43,7 @@ def read_cava_data():
         while True:
             data = fifo.readline().strip()
             if data:
-                yield list(map(int, data.split()))
+                yield [int(x) for x in data.split(';') if x.strip().isdigit()]
 
 # Start reading CAVA data
 cava_data_gen = read_cava_data()
@@ -55,12 +55,18 @@ while running:
     # Read and process CAVA data
     try:
         cava_data = next(cava_data_gen)
+        print("CAVA Data:", cava_data) #debuging line
         if len(cava_data) != BARS:
             cava_data = [0] * BARS  # Reset if data length is incorrect
     except StopIteration:
         cava_data = [0] * BARS
 
-    # Draw bars
+    ## ---- DRAW TEST BARS ---- ##
+    for i in range(10):  # Draw 10 test bars
+        pygame.draw.rect(screen, (255, 0, 0), (i * 20, 300, 15, 100))  # Red test bars
+    print("Test bars drawn!")  # Debugging output
+
+    # Draw CAVA bars (if data exists)
     for i in range(BARS):
         bar_height = cava_data[i] * 2  # Scale bar height
         pygame.draw.rect(screen, BAR_COLOR, (i * BAR_WIDTH, HEIGHT - bar_height, BAR_WIDTH - 2, bar_height))
