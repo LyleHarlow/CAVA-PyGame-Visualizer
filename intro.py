@@ -2,17 +2,33 @@ import pygame
 import os
 import glob
 
+import os
+os.environ["SDL_VIDEODRIVER"] = "wayland"  # Or try "x11" if Wayland fails
+
+# Initialize pygame
+pygame.init()
+
+
 # Setup
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 400
+
+
+SCREEN_WIDTH = pygame.display.Info().current_w
+SCREEN_HEIGHT = pygame.display.Info().current_h
+
+##SCREEN_WIDTH, SCREEN_HEIGHT = 800, 400
 BARS = 256  # Number of bars to display
 BAR_WIDTH = SCREEN_WIDTH // BARS
 
 # Colors
 BAR_COLOR = (0, 255, 0)  # Green bars
 
-# Initialize pygame
-pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+##screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# Create fullscreen window
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
+
+
 pygame.display.set_caption("CAVA Visualization Overlay")
 
 # Load multiple background images from a folder
@@ -87,7 +103,7 @@ while running:
     start_x = BAR_WIDTH  # Left align
 
     # Maximum bar height
-    MAX_BAR_HEIGHT = SCREEN_HEIGHT // 2  # Adjust based on preference
+    MAX_BAR_HEIGHT = SCREEN_HEIGHT - 64  # Adjust based on preference
 
     for i, value in enumerate(cava_data):
         bar_height = max(2, min(value, MAX_BAR_HEIGHT))  # Limit bar height
