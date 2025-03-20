@@ -14,10 +14,10 @@ SCREEN_WIDTH = pygame.display.Info().current_w
 SCREEN_HEIGHT = pygame.display.Info().current_h
 
 # Constants
-BARS = 256
+BARS = 256  # Acts as the number of points in the line graph
 SPACING = 1
-MAX_BAR_HEIGHT = SCREEN_HEIGHT - 64
-BAR_COLOR = (0, 255, 0)
+MAX_BAR_HEIGHT = (SCREEN_HEIGHT // 2) - 32  # Half-screen for mirroring
+LINE_COLOR = (0, 255, 0)  # Green Line
 
 # Setup Pygame Display
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
@@ -67,20 +67,26 @@ while running:
     with data_lock:
         local_cava_data = cava_data[:]
 
-    # Adjust Bar Count
+    # Adjust Data Size
     BARS = len(local_cava_data)
-    BAR_WIDTH = max(1, (SCREEN_WIDTH // BARS) - 1)
+    POINT_SPACING = SCREEN_WIDTH / (BARS - 1)  # Evenly space points
 
-    # Calculate Visualizer Width
-    start_x = BAR_WIDTH  # Align Left
+    # Normalize Values for Upper Waveform
+    center_y = SCREEN_HEIGHT // 2
+    upper_wave = [
+        (i * POINT_SPACING, center_y - max(2, min(val, MAX_BAR_HEIGHT)) // 2)
+        for i, val in enumerate(local_cava_data)
+    ]
 
-    # Draw Bars (Corrected Version)
-    for i, val in enumerate(local_cava_data):
-        bar_height = max(2, min(val, MAX_BAR_HEIGHT))
-        x_pos = start_x + i * (BAR_WIDTH + SPACING)
-        y_pos = (SCREEN_HEIGHT // 2) - (bar_height // 2)  # Center vertically
+    # Create Mirrored Waveform Below
+    lower_wave = [
+        (x, 2 * center_y - y) for x, y in upper_wave
+    ]
 
-        pygame.draw.rect(screen, BAR_COLOR, (x_pos, y_pos, BAR_WIDTH, bar_height))
+    # Draw Upper and Lower Waveforms
+    if len(upper_wave) > 1:
+        pygame.draw.aalines(screen, LINE_COLOR, False, upper_wave, 1)
+        pygame.draw.aalines(screen, LINE_COLOR, False, lower_wave, 1)
 
     # Event Handling
     for event in pygame.event.get():
