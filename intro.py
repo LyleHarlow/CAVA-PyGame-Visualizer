@@ -14,10 +14,11 @@ SCREEN_WIDTH = pygame.display.Info().current_w
 SCREEN_HEIGHT = pygame.display.Info().current_h
 
 # Constants
-BARS = 256  # Acts as the number of points in the line graph
-SPACING = 1
-MAX_BAR_HEIGHT = (SCREEN_HEIGHT // 2) - 32  # Half-screen for mirroring
-LINE_COLOR = (0, 255, 0)  # Green Line
+BARS = 256
+MAX_BAR_HEIGHT = (SCREEN_HEIGHT // 1.1) - 32
+# LINE_COLOR = (0, 255, 0)  # Green Line
+LINE_COLOR = (255, 255, 0)  # Yellow Line
+LINE_THICKNESS = 5  # Increase line thickness
 
 # Setup Pygame Display
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
@@ -49,7 +50,7 @@ def read_cava_data():
             data = [int(x) for x in line.strip().split(";") if x.strip().isdigit()]
             if data:
                 with data_lock:
-                    cava_data = data[:-158] if len(data) > 158 else data  # Trim data
+                    cava_data = data[:-158] if len(data) > 158 else data
 
 # Start CAVA Reader Thread
 cava_thread = threading.Thread(target=read_cava_data, daemon=True)
@@ -69,7 +70,7 @@ while running:
 
     # Adjust Data Size
     BARS = len(local_cava_data)
-    POINT_SPACING = SCREEN_WIDTH / (BARS - 1)  # Evenly space points
+    POINT_SPACING = SCREEN_WIDTH / (BARS - 1)
 
     # Normalize Values for Upper Waveform
     center_y = SCREEN_HEIGHT // 2
@@ -79,14 +80,12 @@ while running:
     ]
 
     # Create Mirrored Waveform Below
-    lower_wave = [
-        (x, 2 * center_y - y) for x, y in upper_wave
-    ]
+    lower_wave = [(x, 2 * center_y - y) for x, y in upper_wave]
 
-    # Draw Upper and Lower Waveforms
+    # Draw Thick Lines
     if len(upper_wave) > 1:
-        pygame.draw.aalines(screen, LINE_COLOR, False, upper_wave, 1)
-        pygame.draw.aalines(screen, LINE_COLOR, False, lower_wave, 1)
+        pygame.draw.lines(screen, LINE_COLOR, False, upper_wave, LINE_THICKNESS)
+        pygame.draw.lines(screen, LINE_COLOR, False, lower_wave, LINE_THICKNESS)
 
     # Event Handling
     for event in pygame.event.get():
