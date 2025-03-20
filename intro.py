@@ -16,7 +16,7 @@ SCREEN_HEIGHT = pygame.display.Info().current_h
 # Constants
 BARS = 256
 MAX_BAR_HEIGHT = (SCREEN_HEIGHT // 1.1) - 32
-# LINE_COLOR = (0, 255, 0)  # Green Line
+LINE_COLOR = (0, 255, 0)  # Green Line
 LINE_COLOR = (255, 255, 0)  # Yellow Line
 LINE_THICKNESS = 5  # Increase line thickness
 
@@ -31,7 +31,7 @@ if not background_images:
     raise FileNotFoundError("No background images found in 'backgrounds/' folder!")
 
 backgrounds = [pygame.transform.scale(pygame.image.load(img), (SCREEN_WIDTH, SCREEN_HEIGHT)) for img in background_images]
-bg_index = 0
+bg_index = 0  # Start with the first background
 
 # Open FIFO for CAVA Data
 fifo_path = "/tmp/cava.fifo"
@@ -64,28 +64,30 @@ while running:
     # Draw Background
     screen.blit(backgrounds[bg_index], (0, 0))
 
-    # Get Latest CAVA Data
-    with data_lock:
-        local_cava_data = cava_data[:]
+    # Only render visualization if background 1 is active
+    if bg_index == 0:
+        # Get Latest CAVA Data
+        with data_lock:
+            local_cava_data = cava_data[:]
 
-    # Adjust Data Size
-    BARS = len(local_cava_data)
-    POINT_SPACING = SCREEN_WIDTH / (BARS - 1)
+        # Adjust Data Size
+        BARS = len(local_cava_data)
+        POINT_SPACING = SCREEN_WIDTH / (BARS - 1)
 
-    # Normalize Values for Upper Waveform
-    center_y = SCREEN_HEIGHT // 2
-    upper_wave = [
-        (i * POINT_SPACING, center_y - max(2, min(val, MAX_BAR_HEIGHT)) // 2)
-        for i, val in enumerate(local_cava_data)
-    ]
+        # Normalize Values for Upper Waveform
+        center_y = SCREEN_HEIGHT // 2
+        upper_wave = [
+            (i * POINT_SPACING, center_y - max(2, min(val, MAX_BAR_HEIGHT)) // 2)
+            for i, val in enumerate(local_cava_data)
+        ]
 
-    # Create Mirrored Waveform Below
-    lower_wave = [(x, 2 * center_y - y) for x, y in upper_wave]
+        # Create Mirrored Waveform Below
+        lower_wave = [(x, 2 * center_y - y) for x, y in upper_wave]
 
-    # Draw Thick Lines
-    if len(upper_wave) > 1:
-        pygame.draw.lines(screen, LINE_COLOR, False, upper_wave, LINE_THICKNESS)
-        pygame.draw.lines(screen, LINE_COLOR, False, lower_wave, LINE_THICKNESS)
+        # Draw Thick Lines
+        if len(upper_wave) > 1:
+            pygame.draw.lines(screen, LINE_COLOR, False, upper_wave, LINE_THICKNESS)
+            pygame.draw.lines(screen, LINE_COLOR, False, lower_wave, LINE_THICKNESS)
 
     # Event Handling
     for event in pygame.event.get():
@@ -94,7 +96,7 @@ while running:
         elif event.type == pygame.KEYDOWN and pygame.K_1 <= event.key <= pygame.K_9:
             key_number = event.key - pygame.K_1
             if key_number < len(backgrounds):
-                bg_index = key_number
+                bg_index = key_number  # Switch background
 
     # Update Display
     pygame.display.flip()
