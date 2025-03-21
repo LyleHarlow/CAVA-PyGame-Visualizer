@@ -3,12 +3,28 @@ import os
 import glob
 import threading
 import time  # Import time for the timer
+import sys
+
+
+
+# added to figure out delay
+with open("/tmp/pygame_debug.log", "a") as log:
+    log.write(f"[DEBUG] Script started at {time.time():.2f}\n")
+    log.flush()
+start_time = time.time()
+with open("/tmp/pygame_debug.log", "a") as log:
+    log.write(f"[DEBUG] Script started at {start_time:.2f}\n")
+    log.flush()
 
 # Optimize Pygame Display
 os.environ["SDL_VIDEODRIVER"] = "wayland"  # Use "x11" if Wayland fails
 
 # Initialize Pygame
 pygame.init()
+# added to figure out delay
+with open("/tmp/pygame_debug.log", "a") as log:
+    log.write(f"[DEBUG] Pygame initialized at {time.time() - start_time:.2f} seconds\n")
+    log.flush()
 
 # Get Screen Size
 SCREEN_WIDTH = pygame.display.Info().current_w
@@ -24,6 +40,10 @@ SWITCH_TIMEOUT = 20  # 20 seconds timer
 
 # Setup Pygame Display
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
+# added to figure out delay
+with open("/tmp/pygame_debug.log", "a") as log:
+    log.write(f"[DEBUG] Display initialized at {time.time() - start_time:.2f} seconds\n")
+    log.flush()
 
 # Load and Pre-Scale Background Images
 background_folder = "/home/pi/Projects/cava-pygame/backgrounds"
@@ -63,6 +83,9 @@ cava_thread.start()
 clock = pygame.time.Clock()
 running = True
 
+with open("/tmp/pygame_debug.log", "a") as log:
+    log.write(f"[DEBUG] Entering main loop at {time.time() - start_time:.2f} seconds\n")
+    log.flush()
 while running:
     # Check if background is 2 or 3 and auto-switch back after timeout
     if bg_index in [1, 2] and time.time() - last_switch_time > SWITCH_TIMEOUT:
@@ -106,6 +129,8 @@ while running:
             if key_number < len(backgrounds):
                 bg_index = key_number  # Switch background
                 last_switch_time = time.time()  # Reset timer when user switches
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            running = False
 
     # Update Display
     pygame.display.flip()
@@ -114,3 +139,4 @@ while running:
     clock.tick(60)
 
 pygame.quit()
+sys.exit()
