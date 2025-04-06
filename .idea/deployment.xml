@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="pi@10.107.127.5:22 agent (2)" createEmptyFolders="true" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false" autoUploadExternalChanges="true">
+  <component name="PublishConfigData" autoUpload="Always" serverName="pi@192.168.1.211:22 agent" createEmptyFolders="true" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false" autoUploadExternalChanges="true">
     <option name="confirmBeforeUploading" value="false" />
     <serverData>
       <paths name="cava-pygame">
@@ -21,6 +21,13 @@
         <serverdata>
           <mappings>
             <mapping deploy="/home/pi/Projects/cava-pygame" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="pi@192.168.1.211:22 agent">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/pi/Projects/cava-pygame" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
