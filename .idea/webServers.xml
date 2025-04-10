@@ -3,7 +3,14 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="2e6f0249-1c2d-415a-8a94-de3f5a9ff7dd" name="cava-pygame">
-        <fileTransfer accessType="SFTP" sshConfigId="ab4c36ff-4bef-4672-818a-1d369b6c47a4" sshConfig="pi@10.107.127.5:22 agent">
+        <fileTransfer accessType="SFTP" host="10.107.127.5" port="22" sshConfigId="a01f487e-29a2-414d-bb4a-2b55f1ffe1f8" sshConfig="pi@10.107.127.5:22 agent" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="dddc2c7c-f517-44cc-9d47-f0a2a5646d38" name="pi@10.107.118.143">
+        <fileTransfer accessType="SFTP" host="10.107.118.143" port="22" sshConfigId="f979c231-3368-49ad-9bbb-8076b98ecaf7" sshConfig="pi@10.107.118.143:22 agent" authAgent="true">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>

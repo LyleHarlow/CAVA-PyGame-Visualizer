@@ -3,6 +3,7 @@ import os
 import glob
 import threading
 import time
+from collections import deque
 
 # Optimize Pygame Display
 os.environ["SDL_VIDEODRIVER"] = "wayland"
@@ -23,6 +24,12 @@ SWITCH_TIMEOUT = 20
 
 # Sensitivity control
 sensitivity = 1.0  # Default sensitivity
+
+# Baseline noise removal
+baseline_data = []
+collecting_baseline = False
+baseline_start_time = 0
+baseline_buffer = deque(maxlen=1800)  # 60 FPS * 30 seconds
 
 # Setup Pygame Display
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
@@ -76,13 +83,36 @@ while running:
         with data_lock:
             local_cava_data = cava_data[:]
 
-        BARS = len(local_cava_data)
+        # Subtract baseline if available
+        if baseline_data and len(local_cava_data) == len(baseline_data):
+            filtered_data = [max(val - base, 0) for val, base in zip(local_cava_data, baseline_data)]
+        else:
+            filtered_data = local_cava_data
+
+        # Collect new baseline data if in recording mode
+        if collecting_baseline:
+            if time.time() - baseline_start_time < 30:
+                baseline_buffer.append(local_cava_data[:])
+            else:
+                num_samples = len(baseline_buffer)
+                if num_samples > 0:
+                    baseline_data = [
+                        int(sum(sample[i] for sample in baseline_buffer) / num_samples)
+                        for i in range(len(baseline_buffer[0]))
+                    ]
+                    print("[INFO] New baseline recorded.")
+                else:
+                    print("[WARN] No data collected for baseline.")
+                collecting_baseline = False
+
+        # Draw waveform
+        BARS = len(filtered_data)
         POINT_SPACING = SCREEN_WIDTH / (BARS - 1)
         center_y = SCREEN_HEIGHT // 2
 
         upper_wave = [
             (i * POINT_SPACING, center_y - max(2, min(int(val * sensitivity), MAX_BAR_HEIGHT)) // 2)
-            for i, val in enumerate(local_cava_data)
+            for i, val in enumerate(filtered_data)
         ]
         lower_wave = [(x, 2 * center_y - y) for x, y in upper_wave]
 
@@ -90,6 +120,7 @@ while running:
             pygame.draw.lines(screen, LINE_COLOR, False, upper_wave, LINE_THICKNESS)
             pygame.draw.lines(screen, LINE_COLOR, False, lower_wave, LINE_THICKNESS)
 
+    # Event Handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -108,6 +139,11 @@ while running:
             elif event.key == pygame.K_DOWN:
                 sensitivity = max(sensitivity - 0.1, 0.1)
                 print(f"Sensitivity decreased to {sensitivity:.1f}")
+            elif event.key == pygame.K_b:
+                collecting_baseline = True
+                baseline_start_time = time.time()
+                baseline_buffer.clear()
+                print("[INFO] Starting 30-second baseline recording...")
 
     pygame.display.flip()
     clock.tick(60)
